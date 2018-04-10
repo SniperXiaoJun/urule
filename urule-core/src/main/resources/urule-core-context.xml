@@ -14,6 +14,10 @@
 		</property>
 	</bean>
 	
+	<bean id="urule.defaultHtmlFileDebugWriter" class="com.bstek.urule.debug.DefaultHtmlFileDebugWriter">
+		<property name="path" value="${urule.defaultHtmlFileDebugPath}"></property>
+	</bean>
+	
 	<bean id="urule.knowledgeBuilder" class="com.bstek.urule.builder.KnowledgeBuilder">
 		<property name="reteBuilder" ref="urule.reteBuilder"></property>
 		<property name="rulesRebuilder" ref="urule.rulesRebuilder"></property>
@@ -115,7 +119,10 @@
 	
 	<bean id="urule.valueCompute" class="com.bstek.urule.runtime.rete.ValueCompute"></bean>
 
-	<bean id="urule.utils" class="com.bstek.urule.Utils"></bean>
+	<bean id="urule.utils" class="com.bstek.urule.Utils">
+		<property name="debug" value="${urule.debug}"></property>
+		<property name="debugToFile" value="${urule.debugToFile}"></property>
+	</bean>
 	
 	<bean id="urule.flowResourceBuilder" class="com.bstek.urule.builder.resource.FlowResourceBuilder">
 		<property name="flowDeserializer" ref="urule.flowDeserializer"></property>
@@ -249,6 +256,8 @@
 	<bean id="urule.notNullAssertor" class="com.bstek.urule.runtime.assertor.NotNullAssertor"></bean>
 	<bean id="urule.equalsIgnoreCaseAssertor" class="com.bstek.urule.runtime.assertor.EqualsIgnoreCaseAssertor"></bean>
 	<bean id="urule.notEqualsIgnoreCaseAssertor" class="com.bstek.urule.runtime.assertor.NotEqualsIgnoreCaseAssertor"></bean>
+	<bean id="urule.containAssertor" class="com.bstek.urule.runtime.assertor.ContainAssertor"></bean>
+	<bean id="urule.notContainAssertor" class="com.bstek.urule.runtime.assertor.NotContainAssertor"></bean>
 	
 	<bean id="urule.reteBuilder" class="com.bstek.urule.model.rete.builder.ReteBuilder"></bean>
 	

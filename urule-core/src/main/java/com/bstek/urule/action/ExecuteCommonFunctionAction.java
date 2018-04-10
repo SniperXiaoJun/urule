@@ -20,6 +20,7 @@ import java.util.Map;
 
 import com.bstek.urule.RuleException;
 import com.bstek.urule.Utils;
+import com.bstek.urule.debug.MsgType;
 import com.bstek.urule.model.function.FunctionDescriptor;
 import com.bstek.urule.model.rule.Value;
 import com.bstek.urule.model.rule.lhs.CommonFunctionParameter;
@@ -44,6 +45,7 @@ public class ExecuteCommonFunctionAction extends AbstractAction{
 		if(function==null){
 			throw new RuleException("Function["+name+"] not exist.");
 		}
+		String info=(label==null)?name:label;
 		Value value=null;
 		Object object=null;
 		if(parameter!=null){
@@ -55,6 +57,11 @@ public class ExecuteCommonFunctionAction extends AbstractAction{
 			property=parameter.getProperty();
 		}
 		Object result=function.doFunction(object, property,context.getWorkingMemory());
+		if(debug && Utils.isDebug()){
+			info=info+(object==null ? "" : object);
+			String msg="***执行函数："+info;
+			context.debugMsg(msg, MsgType.ExecuteFunction, debug);
+		}
 		if(result!=null){
 			return new ActionValueImpl(name,result);					
 		}else{

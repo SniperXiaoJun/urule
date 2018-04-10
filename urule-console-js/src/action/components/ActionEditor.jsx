@@ -105,11 +105,25 @@ class ActionEditor extends Component{
                             </div>
                             <div className="btn-group btn-group-sm" style={{margin:'2px'}}>
                                 <button className="btn btn-info" type="button" onClick={(e)=>{
-                                    refEvent.eventEmitter.emit(refEvent.OPEN_REFERENCE_DIALOG,file);
+                                    if(!this.currentData){
+                                        bootbox.alert('请先选择一条具体的动作方法');
+                                        return;
+                                    }
+                                    const title=`动作"${this.masterData.name}.${this.currentData.name}"`;
+                                    const data={
+                                        path:file,
+                                        beanName:this.masterData.id,
+                                        beanLabel:this.masterData.name,
+                                        methodName:this.currentData.methodName,
+                                        methodLabel:this.currentData.name
+                                    };
+                                    refEvent.eventEmitter.emit(refEvent.OPEN_REFERENCE_DIALOG,data,title);
                                 }}><i className="rf rf-link"></i> 查看引用</button>
                             </div>
                         </div>
                         <Grid headers={masterGridHeaders} rows={masterData} operationConfig={masterGridOperationCol} rowClick={(rowData,rowIndex)=>{
+                            this.masterData=rowData;
+                            this.currentData=null;
                             dispatch(action.loadSlaveData(rowData,rowIndex));
                         }}/>
                         <SelectMethodDialog/>
@@ -123,6 +137,7 @@ class ActionEditor extends Component{
                                     </div>
                                 </div>
                                 <Grid headers={slaveGridHeaders} rows={masterRowData.methods} operationConfig={slaveGridOperationCol} rowClick={(rowData,rowIndex)=>{
+                                    this.currentData=rowData;
                                     dispatch(action.loadMethodData(rowData,rowIndex));
                                 }}/>
                             </div>

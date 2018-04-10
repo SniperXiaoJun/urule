@@ -15,8 +15,12 @@
  ******************************************************************************/
 package com.bstek.urule.runtime.rete;
 
+import java.util.List;
+
 import org.springframework.context.ApplicationContext;
 
+import com.bstek.urule.debug.MessageItem;
+import com.bstek.urule.debug.MsgType;
 import com.bstek.urule.runtime.WorkingMemory;
 import com.bstek.urule.runtime.assertor.AssertorEvaluator;
 
@@ -31,4 +35,6 @@ public interface Context {
 	String getVariableCategoryClass(String variableCategory);
 	WorkingMemory getWorkingMemory();
 	Object parseExpression(String expression);
+	List<MessageItem> getDebugMessageItems();
+	void debugMsg(String msg,MsgType type,boolean debug);
 }

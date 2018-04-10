@@ -38,7 +38,7 @@ export function saveData(data,newVersion,file) {
         }
         xml+="<spring-bean id='"+item.id+"' name='"+item.name+"'>";
         var methods=item.methods;
-        if(!methods){
+        if(!methods || methods.length===0){
             errorInfo="动作分类["+item.name+"]下未定义具体的动作方法.";
             break;
         }
@@ -78,6 +78,7 @@ export function saveData(data,newVersion,file) {
         return;
     }
     xml+='</action-library>';
+    xml=encodeURI(xml);
     let postData={content:xml,file,newVersion};
     const url=window._server+'/common/saveFile';
     if(newVersion){
@@ -108,8 +109,12 @@ export function loadBeanMethods(beanId){
             success:function(result){
                 dispatch({type:LOADED_BEAN_METHODS,result});
             },
-            error:function(){
-                alert('加载方法失败.');
+            error:function(response){
+                if(response && response.responseText){
+                    bootbox.alert("<span style='color: red'>服务端错误："+response.responseText+"</span>");
+                }else{
+                    bootbox.alert("<span style='color: red'>服务端出错</span>");
+                }
             }
         });
     }
@@ -153,8 +158,12 @@ export function loadMasterData(files) {
             success:function (data) {
                 dispatch({type:LOAD_MASTER_COMPLETED,masterData:data[0]});
             },
-            error:function () {
-                alert("加载数据失败.");
+            error:function (response) {
+                if(response && response.responseText){
+                    bootbox.alert("<span style='color: red'>服务端错误："+response.responseText+"</span>");
+                }else{
+                    bootbox.alert("<span style='color: red'>服务端出错</span>");
+                }
             }
         });
     }

@@ -36,6 +36,7 @@ public class DefaultKnowledgePackageService implements KnowledgePackageService{
 	private KnowledgeBuilder knowledgeBuilder;
 	private RepositoryService repositoryService;
 	
+	@Override
 	public KnowledgePackage buildKnowledgePackage(String packageInfo) throws IOException{
 		try{
 			String[] info=packageInfo.split("/");

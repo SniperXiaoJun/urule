@@ -96,6 +96,12 @@ window._setDirty=function(){
 				defaultValue:true,
 				editorType:3,
 				onClick:onClick
+			},{
+				label:"允许调试信息输出",
+				name:"debug",
+				defaultValue:true,
+				editorType:3,
+				onClick:onClick
 			}]
 		});
 		addProp.click(function(e){
@@ -177,7 +183,8 @@ window._setDirty=function(){
 			if($("#saveButton").hasClass("disabled")){
 				return false;
 			}
-			const file=getParameter('file'),xml=self.toXml();
+			let file=getParameter('file'),xml=self.toXml();
+            xml=encodeURI(xml);
 			let postData={content:xml,file,newVersion};
 			const url=window._server+'/common/saveFile';
 			if(newVersion){
@@ -968,8 +975,12 @@ window._setDirty=function(){
 				async:false,
 				type:'POST',
 				data:{files},
-				error:function(req,error){
-					alert("加载文件失败！");
+				error:function(response){
+					if(response && response.responseText){
+						bootbox.alert("<span style='color: red'>加载文件失败："+response.responseText+"</span>");
+					}else{
+						bootbox.alert("<span style='color: red'>加载文件失败,服务端出错</span>");
+					}
 				},
 				success:function(data){
 					var decisionTable=data[0];
@@ -993,6 +1004,10 @@ window._setDirty=function(){
 					var enabled=decisionTable["enabled"];
 					if(enabled!=null){
 						self.addProperty(new urule.RuleProperty(self,"enabled",enabled,3));
+					}
+					var debug=decisionTable["debug"];
+					if(debug!=null){
+						self.addProperty(new urule.RuleProperty(self,"debug",debug,3));
 					}
 
 					var libraries=decisionTable.libraries||[];

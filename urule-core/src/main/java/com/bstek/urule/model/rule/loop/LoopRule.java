@@ -65,6 +65,9 @@ public class LoopRule extends Rule{
 			List<Action> startActions=loopStart.getActions();
 			if(startActions!=null){
 				for(Action action:startActions){
+					if(this.getDebug()!=null){
+						action.setDebug(this.getDebug());
+					}
 					ActionValue value=action.execute(context, matchedObject, allMatchedObjects,variableMap);
 					if(value!=null){
 						values.add(value);
@@ -73,7 +76,7 @@ public class LoopRule extends Rule{
 			}
 		}
 
-		KnowledgeSession session=KnowledgeSessionFactory.newKnowledgeSession(knowledgePackageWrapper.getKnowledgePackage());
+		KnowledgeSession session=KnowledgeSessionFactory.newKnowledgeSession(knowledgePackageWrapper.getKnowledgePackage(),context.getDebugMessageItems());
 		if(loopTargetObj instanceof Collection){
 			Collection<?> collections=(Collection<?>)loopTargetObj;
 			String loopClazz=null;
@@ -148,6 +151,9 @@ public class LoopRule extends Rule{
 			List<Action> endActions=loopEnd.getActions();
 			if(endActions!=null){
 				for(Action action:endActions){
+					if(this.getDebug()!=null){
+						action.setDebug(this.getDebug());
+					}
 					ActionValue value=action.execute(context, matchedObject, allMatchedObjects,variableMap);
 					if(value!=null){
 						values.add(value);

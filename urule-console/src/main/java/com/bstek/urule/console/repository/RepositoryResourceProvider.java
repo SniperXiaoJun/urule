@@ -15,7 +15,6 @@
  ******************************************************************************/
 package com.bstek.urule.console.repository;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 import org.apache.commons.io.IOUtils;
@@ -32,19 +31,21 @@ import com.bstek.urule.builder.resource.ResourceProvider;
 public class RepositoryResourceProvider implements ResourceProvider {
 	public static final String JCR="jcr:";
 	private RepositoryService repositoryService;
+	
+	@Override
 	public Resource provide(String path,String version) {
 		String newpath=path.substring(4,path.length());
 		InputStream inputStream=null;
-		if(StringUtils.isEmpty(version) || version.equals("LATEST")){
-			inputStream=repositoryService.readFile(newpath,null);			
-		}else{
-			inputStream=repositoryService.readFile(newpath,version);						
-		}
 		try {
+			if(StringUtils.isEmpty(version) || version.equals("LATEST")){
+				inputStream=repositoryService.readFile(newpath,null);											
+			}else{
+				inputStream=repositoryService.readFile(newpath,version);														
+			}
 			String content=IOUtils.toString(inputStream,"utf-8");
 			IOUtils.closeQuietly(inputStream);
 			return new Resource(content,path);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new RuleException(e);
 		}
 	}

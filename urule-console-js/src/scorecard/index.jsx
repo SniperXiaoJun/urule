@@ -149,7 +149,8 @@ $(document).ready(function (e) {
 
     function save(newVersion) {
         try{
-            const content=cardTable.toXml();
+            let content=cardTable.toXml();
+            content=encodeURI(content);
             const url=window._server+"/common/saveFile";
             if(newVersion){
                 bootbox.prompt("请输入新版本描述.",function (versionComment) {
@@ -218,8 +219,12 @@ $(document).ready(function (e) {
                 cancelDirty();
             }
         },
-        error:function () {
-            bootbox.alert("加载数据失败！");
+        error:function (response) {
+            if(response && response.responseText){
+                bootbox.alert("<span style='color: red'>加载数据失败,服务端错误："+response.responseText+"</span>");
+            }else{
+                bootbox.alert("<span style='color: red'>加载数据失败,服务端出错</span>");
+            }
         }
     });
 });

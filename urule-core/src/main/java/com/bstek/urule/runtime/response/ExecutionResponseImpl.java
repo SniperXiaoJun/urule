@@ -32,7 +32,7 @@ public class ExecutionResponseImpl implements RuleExecutionResponse,FlowExecutio
 	private List<RuleExecutionResponse> ruleExecutionResponses=new ArrayList<RuleExecutionResponse>();
 	private List<FlowExecutionResponse> flowExecutionResponses=new ArrayList<FlowExecutionResponse>();
 	private List<RuleInfo> rulesFired;
-	private List<RuleInfo> matchedRules;
+	private List<RuleInfo> matchedRules=new ArrayList<RuleInfo>();
 	private List<ActionValue> actionValues;
 	
 	@Override
@@ -86,8 +86,8 @@ public class ExecutionResponseImpl implements RuleExecutionResponse,FlowExecutio
 	public List<RuleInfo> getMatchedRules() {
 		return matchedRules;
 	}
-	public void setMatchedRules(List<RuleInfo> matchedRules) {
-		this.matchedRules = matchedRules;
+	public void addMatchedRules(List<RuleInfo> matchedRules){
+		this.matchedRules.addAll(matchedRules);
 	}
 	public List<RuleInfo> getFiredRules() {
 		return rulesFired;

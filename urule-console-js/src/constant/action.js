@@ -29,7 +29,7 @@ export function saveData(data,newVersion,file) {
         }
         xml+="<category name='"+item.name+"' label='"+item.label+"'>";
         var constants=item.constants;
-        if(!constants){
+        if(!constants || constants.length===0){
             errorInfo="常量分类["+item.label+"]下未定义具体的常量信息";
             return false;
         }
@@ -58,6 +58,7 @@ export function saveData(data,newVersion,file) {
         return;
     }
     xml+='</constant-library>';
+    xml=encodeURI(xml);
     let postData={content:xml,file,newVersion};
     const url=window._server+'/common/saveFile';
     if(newVersion){
@@ -103,8 +104,12 @@ export function loadMasterData(files) {
             success:function (data) {
                 dispatch({type:LOAD_MASTER_COMPLETED,masterData:data[0].categories});
             },
-            error:function () {
-                alert("加载数据失败.");
+            error:function (response) {
+                if(response && response.responseText){
+                    bootbox.alert("<span style='color: red'>服务端错误："+response.responseText+"</span>");
+                }else{
+                    bootbox.alert("<span style='color: red'>服务端出错</span>");
+                }
             }
         });
     }

@@ -19,7 +19,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import com.bstek.urule.Utils;
+import com.bstek.urule.debug.MsgType;
 import com.bstek.urule.model.rule.lhs.Criteria;
+import com.bstek.urule.model.rule.lhs.EvaluateResponse;
 
 /**
  * @author Jacky.gao
@@ -28,15 +31,22 @@ import com.bstek.urule.model.rule.lhs.Criteria;
 public class CriteriaActivity  extends AbstractActivity {
 	protected Criteria criteria;
 	private boolean pass;
-	public CriteriaActivity(Criteria criteria){
+	private boolean debug;
+	public CriteriaActivity(Criteria criteria,boolean debug){
 		this.criteria=criteria;
+		this.debug=debug;
 	}
 	public List<FactTracker> enter(EvaluationContext context, Object obj,FactTracker tracker,Map<String,Object> variableMap) {
 		if(pass){
 			return null;
 		}
+		if(orNodeIsPassed()){
+			return null;
+		}
 		List<Object> allMatchedObjects=new ArrayList<Object>();
-		boolean result=criteria.evaluate(context, obj,allMatchedObjects);
+		EvaluateResponse response=criteria.evaluate(context, obj,allMatchedObjects);
+		boolean result=response.getResult();
+		doDebug(response,context);
 		if(result){
 			context.setPrevActivity(this);
 			pass=true;
@@ -47,6 +57,35 @@ public class CriteriaActivity  extends AbstractActivity {
 			return visitPahs(context,obj,tracker,variableMap);
 		}
 		return null;
+	}
+	
+	private void doDebug(EvaluateResponse response,Context context){
+		if(!debug || !Utils.isDebug()){
+			return;
+		}
+		String id=criteria.getId();
+		StringBuffer sb=new StringBuffer();
+		sb.append("^^^条件："+id);
+		String result=response.getResult() ? "满足" : "不满足";
+		sb.append(" =>"+result);
+		sb.append(", 左值："+(response.getLeftResult()==null ? "null" : response.getLeftResult()));
+		sb.append(", 右值："+(response.getRightResult()==null ? "null" : response.getRightResult()));
+		context.debugMsg(sb.toString(), MsgType.Condition, debug);
+	}
+	
+	@Override
+	public boolean orNodeIsPassed() {
+		List<Path> paths=getPaths();
+		if(paths!=null){
+			if(paths.size()>1){
+				return false;
+			}else if(paths.size()==1){
+				Path path=paths.get(0);
+				AbstractActivity activity=(AbstractActivity)path.getTo();
+				return activity.orNodeIsPassed();
+			}
+		}
+		return false;
 	}
 	@Override
 	public void reset() {

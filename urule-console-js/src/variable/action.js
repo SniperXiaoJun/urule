@@ -31,8 +31,8 @@ export function saveData(data,newVersion,file) {
             return false;
         }
         xml+="<category name='"+item.name+"' type='"+item.type+"' clazz='"+item.clazz+"'>";
-        var variables=item.variables || [];
-        if(!variables){
+        var variables=item.variables;
+        if(!variables || variables.length==0){
             errorInfo="变量分类["+item.name+"]下未定义具体变量信息.";
             return false;
         }
@@ -61,6 +61,7 @@ export function saveData(data,newVersion,file) {
         return;
     }
     xml+='</variable-library>';
+    xml=encodeURI(xml);
     let postData={content:xml,file,newVersion};
     const url=window._server+'/common/saveFile';
     if(newVersion){
@@ -111,8 +112,12 @@ export function generateFields(rowIndex,clazz){
             success:function(result){
                 dispatch({rowIndex,variables:result,type:GENERATED_FIELDS});
             },
-            error:function(){
-                alert("生成字段失败.");
+            error:function(response){
+                if(response && response.responseText){
+                    bootbox.alert("<span style='color: red'>生成字段失败,服务端错误："+response.responseText+"</span>");
+                }else{
+                    bootbox.alert("<span style='color: red'>生成字段失败,服务端出错</span>");
+                }
             }
         })
     }
@@ -128,8 +133,12 @@ export function loadMasterData(files) {
             success:function (data) {
                 dispatch({type:LOAD_MASTER_COMPLETED,masterData:data[0]});
             },
-            error:function () {
-                alert("加载数据失败.");
+            error:function (response) {
+                if(response && response.responseText){
+                    bootbox.alert("<span style='color: red'>加载数据失败,服务端错误："+response.responseText+"</span>");
+                }else{
+                    bootbox.alert("<span style='color: red'>加载数据失败,服务端出错</span>");
+                }
             }
         });
     }

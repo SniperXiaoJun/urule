@@ -127,8 +127,11 @@ public class JsonUtils {
 	}
 	
 	public static CommonFunctionParameter parseCommonFunctionParameter(JsonNode node){
-		CommonFunctionParameter parameter=new CommonFunctionParameter();
 		JsonNode parameterNode=node.get("parameter");
+		if(parameterNode==null){
+			return null;
+		}
+		CommonFunctionParameter parameter=new CommonFunctionParameter();
 		parameter.setName(JsonUtils.getJsonValue(parameterNode, "name"));
 		parameter.setProperty(JsonUtils.getJsonValue(parameterNode, "property"));
 		parameter.setPropertyLabel(JsonUtils.getJsonValue(parameterNode, "propertyLabel"));

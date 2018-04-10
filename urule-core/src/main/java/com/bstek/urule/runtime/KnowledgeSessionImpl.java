@@ -15,6 +15,7 @@
  ******************************************************************************/
 package com.bstek.urule.runtime;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -25,6 +26,8 @@ import java.util.Set;
 
 import com.bstek.urule.RuleException;
 import com.bstek.urule.Utils;
+import com.bstek.urule.debug.DebugWriter;
+import com.bstek.urule.debug.MessageItem;
 import com.bstek.urule.model.GeneralEntity;
 import com.bstek.urule.model.flow.FlowDefinition;
 import com.bstek.urule.model.flow.ins.FlowContextImpl;
@@ -70,6 +73,7 @@ public class KnowledgeSessionImpl implements KnowledgeSession{
 	private EvaluationContextImpl evaluationContext;
 	private FlowContextImpl flowContext;
 	private Agenda agenda;
+	private List<MessageItem> debugMessageItems=new ArrayList<MessageItem>();
 	private Map<String,Object> initParameters=new HashMap<String,Object>();
 	private List<Object> facts=new ArrayList<Object>();
 	private List<Object> historyFacts=new ArrayList<Object>();
@@ -79,9 +83,15 @@ public class KnowledgeSessionImpl implements KnowledgeSession{
 	private List<Map<?,?>> factMaps=new ArrayList<Map<?,?>>();
 	private List<KnowledgeEventListener> eventListeners=new ArrayList<KnowledgeEventListener>();
 	public KnowledgeSessionImpl(KnowledgePackage knowledgePackage) {
-		this(new KnowledgePackage[]{knowledgePackage});
+		this(new KnowledgePackage[]{knowledgePackage},null);
 	}
-	public KnowledgeSessionImpl(KnowledgePackage[] knowledgePackages){
+	public KnowledgeSessionImpl(KnowledgePackage knowledgePackage,List<MessageItem> debugMessageItems) {
+		this(new KnowledgePackage[]{knowledgePackage},debugMessageItems);
+	}
+	public KnowledgeSessionImpl(KnowledgePackage[] knowledgePackages,List<MessageItem> debugMessageItems){
+		if(debugMessageItems!=null){
+			this.debugMessageItems=debugMessageItems;			
+		}
 		for(KnowledgePackage knowledgePackage:knowledgePackages){
 			knowledgePackageList.add(knowledgePackage);
 			reteInstanceList.add(knowledgePackage.newReteInstance());
@@ -103,6 +113,8 @@ public class KnowledgeSessionImpl implements KnowledgeSession{
 						initParameters.put(key, new ArrayList<Object>());
 					}else if(type.equals(Datatype.Set)){
 						initParameters.put(key, new HashSet<Object>());
+					}else if(type.equals(Datatype.Map)) {
+						initParameters.put(key, new HashMap<Object,Object>());
 					}
 				}
 			}
@@ -200,19 +212,29 @@ public class KnowledgeSessionImpl implements KnowledgeSession{
 		return resp;
 	}
 	
-	
-	@SuppressWarnings("rawtypes")
 	private void clearInitParameters(){
-		for(Object obj:initParameters.values()){
+		List<String> stringList=new ArrayList<String>();
+		for(String key:initParameters.keySet()) {
+			Object obj=initParameters.get(key);
 			if(obj==null){
 				continue;
 			}
 			if(obj instanceof List){
-				((List)obj).clear();
+				((List<?>)obj).clear();
+			}else if(obj instanceof Set){
+				((Set<?>)obj).clear();
+			}else if(obj instanceof Map) {
+				((Map<?,?>)obj).clear();
+			}else if(obj instanceof Number) {
+				initParameters.put(key, 0);
+			}else if(obj instanceof Boolean) {
+				initParameters.put(key, false);				
+			}else if(obj instanceof String) {
+				stringList.add(key);
 			}
-			if(obj instanceof Set){
-				((Set)obj).clear();
-			}
+		}
+		for(String key:stringList) {
+			initParameters.remove(key);
 		}
 	}
 	
@@ -325,6 +347,16 @@ public class KnowledgeSessionImpl implements KnowledgeSession{
 			}			
 		}
 	}
+	@Override
+	public void writeLogFile() throws IOException{
+		if(debugMessageItems.size()==0){
+			return;
+		}
+		for(DebugWriter writer:Utils.getDebugWriters()){
+			writer.write(debugMessageItems);
+		}
+		debugMessageItems.clear();
+	}
 	
 	public List<Object> getAllFacts() {
 		return facts;
@@ -404,9 +436,9 @@ public class KnowledgeSessionImpl implements KnowledgeSession{
 				allVariableCateogoryMap.putAll(knowledgePackage.getVariableCateogoryMap());
 			}
 		}
-		context = new ContextImpl(this,Utils.getApplicationContext(),allVariableCateogoryMap);
-		evaluationContext=new EvaluationContextImpl(this,Utils.getApplicationContext(),allVariableCateogoryMap);
-		flowContext=new FlowContextImpl(this,allVariableCateogoryMap,Utils.getApplicationContext());
+		context = new ContextImpl(this,Utils.getApplicationContext(),allVariableCateogoryMap,debugMessageItems);
+		evaluationContext=new EvaluationContextImpl(this,Utils.getApplicationContext(),allVariableCateogoryMap,debugMessageItems);
+		flowContext=new FlowContextImpl(this,allVariableCateogoryMap,Utils.getApplicationContext(),debugMessageItems);
 	}
 	
 	public List<ReteInstance> getReteInstanceList() {

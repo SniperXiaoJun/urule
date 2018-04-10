@@ -25,8 +25,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 
+import com.bstek.urule.RuleException;
 import com.bstek.urule.Utils;
 import com.bstek.urule.console.EnvironmentUtils;
+import com.bstek.urule.console.User;
 import com.bstek.urule.console.repository.RepositoryService;
 import com.bstek.urule.console.repository.RepositoryServiceImpl;
 import com.bstek.urule.console.servlet.RenderPageServletHandler;
@@ -54,7 +56,7 @@ public class ClientConfigServletHandler extends RenderPageServletHandler{
 			writer.close();
 		}
 	}
-	public void loadData(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+	public void loadData(HttpServletRequest req, HttpServletResponse resp) throws Exception {
 		String project=req.getParameter("project");
 		project=Utils.decodeURL(project);
 		writeObjectToJson(resp, repositoryService.loadClientConfigs(project));
@@ -64,8 +66,13 @@ public class ClientConfigServletHandler extends RenderPageServletHandler{
 		project=Utils.decodeURL(project);
 		String file=project+"/"+RepositoryServiceImpl.CLIENT_CONFIG_FILE;
 		String content=req.getParameter("content");
-		String username=EnvironmentUtils.getLoginUser(new RequestContext(req, resp)).getUsername();
-		repositoryService.saveFile(file, content, username, false,null);
+		content=Utils.decodeURL(content);
+		User user=EnvironmentUtils.getLoginUser(new RequestContext(req, resp));
+		try{
+			repositoryService.saveFile(file, content, false,null,user);			
+		}catch(Exception ex){
+			throw new RuleException(ex);
+		}
 	}
 	
 	public void setRepositoryService(RepositoryService repositoryService) {
@@ -76,5 +83,4 @@ public class ClientConfigServletHandler extends RenderPageServletHandler{
 	public String url() {
 		return "/clientconfig";
 	}
-	
 }

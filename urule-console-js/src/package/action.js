@@ -70,6 +70,7 @@ export function saveData(data,newVersion,project) {
         xml+='</res-package>';
     });
     xml+='</res-packages>';
+    xml=encodeURI(xml);
     $.ajax({
         url:window._server+'/packageeditor/saveResourcePackages',
         type:'POST',
@@ -176,10 +177,14 @@ export function doTest(files,data,callback){
         success:function(result){
             callback(result);
         },
-        error:function(){
+        error:function(response){
             const ce=window.parent.componentEvent;
             ce.eventEmitter.emit(ce.HIDE_LOADING);
-            alert('仿真测试操作失败!');
+            if(response && response.responseText){
+                bootbox.alert("<span style='color: red'>服务端错误："+response.responseText+"</span>");
+            }else{
+                bootbox.alert("<span style='color: red'>服务端出错</span>");
+            }
         }
     })
 };

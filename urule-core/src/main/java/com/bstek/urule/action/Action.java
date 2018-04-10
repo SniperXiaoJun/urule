@@ -28,4 +28,5 @@ public interface Action extends Comparable<Action>{
 	ActionValue execute(Context context,Object matchedObject,List<Object> allMatchedObjects,Map<String,Object> variableMap);
 	ActionType getActionType();
 	int getPriority();
+	void setDebug(boolean debug);
 }

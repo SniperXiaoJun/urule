@@ -420,8 +420,9 @@ public class PackageServletHandler extends RenderPageServletHandler {
 		project=Utils.decodeURL(project);
 		String path=project+"/"+RepositoryServiceImpl.RES_PACKGE_FILE;
 		String xml=req.getParameter("xml");
+		xml=Utils.decodeURL(xml);
 		User user=EnvironmentUtils.getLoginUser(new RequestContext(req,resp));
-		repositoryService.saveFile(path, xml, user.getUsername(), false,null);
+		repositoryService.saveFile(path, xml, false,null,user);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -699,6 +700,7 @@ public class PackageServletHandler extends RenderPageServletHandler {
 		}
 		long end=System.currentTimeMillis();
 		long elapse=end-start;
+		session.writeLogFile();
 		ExecutionResponseImpl res=(ExecutionResponseImpl)response;
 		List<RuleInfo> firedRules=res.getFiredRules();
 		List<RuleInfo> matchedRules=res.getMatchedRules();

@@ -69,11 +69,25 @@ class ConstantEditor extends React.Component{
                             </div>
                             <div className="btn-group btn-group-sm" style={{margin:'2px'}}>
                                 <button className="btn btn-info" type="button" onClick={(e)=>{
-                                    refEvent.eventEmitter.emit(refEvent.OPEN_REFERENCE_DIALOG,file);
+                                    if(!this.currentData){
+                                        bootbox.alert('请先选择一条具体的常量');
+                                        return;
+                                    }
+                                    const title=`常量"${this.masterData.name}.${this.currentData.name}"`;
+                                    const data={
+                                        path:file,
+                                        constCategory:this.masterData.name,
+                                        constCategoryLabel:this.masterData.label,
+                                        constLabel:this.currentData.label,
+                                        constName:this.currentData.name
+                                    };
+                                    refEvent.eventEmitter.emit(refEvent.OPEN_REFERENCE_DIALOG,data,title);
                                 }}><i className="rf rf-link"></i> 查看引用</button>
                             </div>
                         </div>
                         <Grid headers={masterHeaders} dispatch={dispatch} rows={masterData} operationConfig={masterGridOperationCol} rowClick={(rowData)=>{
+                            this.masterData=rowData;
+                            this.currentData=null;
                             dispatch(action.loadSlaveData(rowData));
                         }}></Grid>
                     </div>
@@ -83,7 +97,9 @@ class ConstantEditor extends React.Component{
                                 <button className="btn btn-primary" type="button" onClick={(e)=>{dispatch(action.addSlave())}}><i className="glyphicon glyphicon-plus"></i> 添加常量</button>
                             </div>
                         </div>
-                        <Grid headers={slaveHeaders} dispatch={dispatch} rows={masterRowData.constants || []} operationConfig={slaveGridOperationCol}></Grid>
+                        <Grid headers={slaveHeaders} dispatch={dispatch} rows={masterRowData.constants || []} operationConfig={slaveGridOperationCol} rowClick={(rowData)=>{
+                            this.currentData=rowData;
+                        }}></Grid>
                     </div>
                 </Splitter>
             </div>

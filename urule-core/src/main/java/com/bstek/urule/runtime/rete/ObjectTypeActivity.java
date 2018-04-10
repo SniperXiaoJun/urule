@@ -52,9 +52,16 @@ public class ObjectTypeActivity extends AbstractActivity {
 					return true;
 				}
 			}
-		}else if(typeClass!=null && typeClass.isAssignableFrom(object.getClass())){
-			return true;
+		}else if(typeClass!=null){
+			Class<?> c=object.getClass();
+			if(typeClass.isAssignableFrom(c) || typeClass.getName().equals(c.getName())){
+				return true;				
+			}
 		}
+		return false;
+	}
+	@Override
+	public boolean orNodeIsPassed() {
 		return false;
 	}
 	@Override

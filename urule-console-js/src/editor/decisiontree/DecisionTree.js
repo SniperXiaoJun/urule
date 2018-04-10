@@ -106,6 +106,7 @@ DecisionTree.prototype.initToolbar=function(){
             return;
         }
         xml+="</decision-tree>";
+        xml=encodeURI(xml);
         var url=(uruleServer || "" )+"urule?action=savexml&file="+file+"";
         var dialog=$("<div style='width:100px;height:50px'>文件保存中...</div>");
         $.ajax({
@@ -123,9 +124,13 @@ DecisionTree.prototype.initToolbar=function(){
                     }
                 });
             },
-            error:function(req,error){
+            error:function(response){
                 dialog.dialog("close");
-                URule.alert("保存失败！");
+                if(response && response.responseText){
+                    bootbox.alert("<span style='color: red'>保存失败："+response.responseText+"</span>");
+                }else{
+                    bootbox.alert("<span style='color: red'>保存失败,服务端出错</span>");
+                }
             },
             success:function(data){
                 cancelDirty();
@@ -141,8 +146,12 @@ DecisionTree.prototype.initToolbar=function(){
             dataType:"json",
             type:'POST',
             url:url,
-            error:function(req,error){
-                URule.alert("加载文件失败！");
+            error:function(response){
+                if(response && response.responseText){
+                    bootbox.alert("<span style='color: red'>加载文件失败："+response.responseText+"</span>");
+                }else{
+                    bootbox.alert("<span style='color: red'>加载文件失败,服务端出错</span>");
+                }
             },
             success:function(data){
                 var treeData=data[0];
